@@ -8,8 +8,8 @@ __license__ = "MIT"
 from fei.ppds import Thread
 from time import sleep
 
-current_number: int = 0
-next_number: int = 0
+num: int = [0, 0, 0, 0, 0]
+inVar: int = [0, 0, 0, 0, 0]
 
 def process(tid: int, num_runs: int):
     """Simulates a process.
@@ -18,7 +18,7 @@ def process(tid: int, num_runs: int):
         tid      -- thread id
         num_runs -- number of executions of the critical section
     """
-    global current_number, next_number
+    global num, inVar
     print("here")
 
 # inspired from https://github.com/tj314/ppds-2023-cvicenia/blob/master/seminar2/04_ticket.py

@@ -1,0 +1,5 @@
+1. Implementujte bakery algoritmus.
+2. Otestujte vašu implementáciu.
+3. Spíšte dokumentáciu. V nej uveďte všetky podstatné detaily o
+implementácii. Vysvetlite, prečo je bakery algoritmus korektné riešenie
+problému vzájomného vylúčenia.

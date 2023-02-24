@@ -8,8 +8,8 @@ __license__ = "MIT"
 from fei.ppds import Thread
 from time import sleep
 
-num: int = [0, 0, 0, 0, 0]
-inVar: int = [0, 0, 0, 0, 0]
+num: int = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+inVar: int = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 def process(tid: int, num_runs: int):
     """Simulates a process.
@@ -23,7 +23,18 @@ def process(tid: int, num_runs: int):
     num[tid] = 1 + max(num)
     inVar[tid] = 0
 
+    for j in range(num_runs):
+        while(inVar[j] == 1):
+            continue
+
+        while((num[j] != 0) and (num[j] < num[tid] or (num[j] == num[tid] and j < tid))):
+            continue
+
+        # execute critical section
+        print(f"Process {tid} runs a complicated computation!")
+        sleep(1)
     
+    num[tid] = 0
 
 # inspired from https://github.com/tj314/ppds-2023-cvicenia/blob/master/seminar2/04_ticket.py
 if __name__ == '__main__':

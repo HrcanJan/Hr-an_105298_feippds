@@ -25,9 +25,9 @@ def process(tid: int, num_runs: int):
     inVar[tid] = False
 
     for j in range(num_runs):
-        # process wants to enter critical section
-        # wait for other processes to finish their execution of critical section
-        while (inVar[j] == True):
+        # process wants to enter the critical section
+        # wait for other processes to finish their execution in the critical section
+        while inVar[j] == True:
             continue
 
         while any((num[k], k) < (num[tid], tid) for k in range(num_runs) if k != tid and num[k] > 0):
@@ -37,7 +37,7 @@ def process(tid: int, num_runs: int):
         print(f"Process {tid} runs a complicated computation!")
         sleep(1)
     
-    # exit critical section
+    # exit the critical section
     num[tid] = 0
 
 

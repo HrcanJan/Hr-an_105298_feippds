@@ -31,19 +31,23 @@ class Shared(object):
 
 def get_haircut(i):
     # TODO: Simulate time and print info when customer gets haircut
+    print(i, " got a haircut")
 
 
 def cut_hair():
     # TODO: Simulate time and print info when barber cuts customer's hair
+    print("Barber is cutting a customer's hair")
 
 
 def balk(i):
     # TODO: Represents situation when waiting room is full and print info
+    print("The waiting room is full so ", i, " can't join")
 
 
 
 def growing_hair(i):
     # TODO: Represents situation when customer wait after getting haircut. So hair is growing and customer is sleeping for some time
+    print("Customer ", i, "'s hair is growing")
 
 
 
@@ -85,7 +89,6 @@ def main():
     for t in customers + [hair_stylist]:
         t.join()
 
-# TODO: Global variables C = 5 numOfCustomers N = 3 sizeOfWaitingRoom
 
 
 if __name__ == "__main__":

@@ -79,6 +79,7 @@ def barber(shared):
 
 
 def main():
+    global C, N
     shared = Shared()
     customers = []
 
@@ -89,6 +90,10 @@ def main():
     for t in customers + [hair_stylist]:
         t.join()
 
+
+# TODO: Global variables C = 5 numOfCustomers N = 3 sizeOfWaitingRoom
+C = 5
+N = 3
 
 
 if __name__ == "__main__":

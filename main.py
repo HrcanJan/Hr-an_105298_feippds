@@ -24,20 +24,16 @@ def process(tid: int, num_runs: int):
     num[tid] = 1 + max(num)
     inVar[tid] = False
 
-    for j in range(num_runs):
-        # process wants to enter the critical section
-        # wait for other processes to finish their execution in the critical section
-        while inVar[j] == True:
-            continue
-
-        while any((num[k], k) < (num[tid], tid) for k in range(num_runs) if k != tid and num[k] > 0):
-            continue
+    for _ in range(num_runs):
+        for j in range(NUM_THREADS):
+            while inVar[j]:
+                continue
+            while (num[j] != 0) and ((num[j], j) < (num[tid], tid)):
+                continue
 
         # execute critical section
         print(f"Process {tid} runs a complicated computation!")
         sleep(1)
-    
-    # exit the critical section
     num[tid] = 0
 
 

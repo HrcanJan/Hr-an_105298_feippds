@@ -25,6 +25,8 @@ class Shared(object):
         self.waiting_room = 0
         self.customer = Semaphore(0)
         self.barber = Semaphore(0)
+        self.customer_done = Semaphore(0)
+        self.barber_done = Semaphore(0)
         # self.customer = Rendezvous is implemented as ?
         # self.barber = Rendezvous is implemented as ?
         # self.customer_done = Rendezvous is implemented as ?
@@ -33,7 +35,7 @@ class Shared(object):
 
 def get_haircut(i):
     # TODO: Simulate time and print info when customer gets haircut
-    print(i, " got a haircut")
+    print(f"{i} got a haircut")
     sleep(1)
 
 
@@ -52,13 +54,13 @@ def leave(i, shared):
     shared.mutex.lock()
     sleep(1 / 100)
     shared.waiting_room -= 1
-    print("Customer ", i, " leaves the waiting room. The capacity is now: ", shared.waiting_room, "/", N)
+    print(f"Customer {i} leaves the waiting room. The capacity is now: ", shared.waiting_room, "/", N)
     shared.mutex.unlock()
 
 def growing_hair(i):
     # TODO: Represents situation when customer wait after getting haircut. So hair is growing and customer is sleeping for some time
-    print("Customer ", i, "'s hair is growing\n")
-    sleep(randint(20, 30))
+    print(f"Customer {i}'s hair is growing\n")
+    sleep(randint(10, 20))
 
 
 def customer_wait(i, shared):
@@ -69,7 +71,7 @@ def customer_wait(i, shared):
         balk(i)
         return False
     shared.waiting_room += 1
-    print("Customer ", i, " enters the waiting room. The capacity is now: ", shared.waiting_room, "/", N)
+    print(f"Customer {i} enters the waiting room. The capacity is now: ", shared.waiting_room, "/", N)
     shared.mutex.unlock()
     return True
 
@@ -83,19 +85,20 @@ def customer(i, shared):
 
     while True:
         # TODO: Access to waiting room. Could customer enter or must wait? Be careful about counter integrity :)
-        print(f"Customer {i} is comes in to the waiting room")
+        print(f"Customer {i} comes in to the waiting room")
         if not customer_wait(i, shared):
             continue
 
         # TODO: Rendezvous 1
         shared.customer.signal()
         shared.barber.wait()
+        shared.customer_done.wait()
         get_haircut(i)
-        shared.customer.wait()
         # TODO: Rendezvous 2
 
         # TODO: Leave waiting room. Integrity again
         leave(i, shared)
+        shared.barber_done.signal()
         growing_hair(i)
 
 def barber(shared):
@@ -113,7 +116,8 @@ def barber(shared):
         shared.customer.wait()
         # TODO: Rendezvous 1
         cut_hair()
-        shared.customer.signal()
+        shared.customer_done.signal()
+        shared.barber_done.wait()
         # TODO: Rendezvous 2
 
 

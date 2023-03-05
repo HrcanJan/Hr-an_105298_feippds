@@ -5,65 +5,94 @@ Faculty: FEI Faculty of Electrical Engineering and Information Technology
 Year: 2023
 """
 
-
 __author__ = "Jan Hrćan"
 __email__ = "xhrcan@stuba.sk"
 __license__ = "MIT"
-
 
 from fei.ppds import Mutex, Thread, Semaphore, print
 from time import sleep
 from random import randint
 
 
+# The template of the project inspired from: https://github.com/tj314/ppds-2023-cvicenia/blob/master/seminar3/barberShop.py
 class Shared(object):
+    """"Object Shared for multiple threads using demonstration"""
 
     def __init__(self):
-
-        # TODO : Initialize patterns we need and variables
         self.mutex = Mutex()
         self.waiting_room = 0
         self.customer = Semaphore(0)
         self.barber = Semaphore(0)
         self.customer_done = Semaphore(0)
         self.barber_done = Semaphore(0)
-        # self.customer = Rendezvous is implemented as ?
-        # self.barber = Rendezvous is implemented as ?
-        # self.customer_done = Rendezvous is implemented as ?
-        # self.barber_done = Rendezvous is implemented as ?
 
 
 def get_haircut(i):
-    # TODO: Simulate time and print info when customer gets haircut
+    """ 
+    Simulate time and print info when customer gets haircut.
+
+    :param i: customer id
+    :return:
+    """
     print(f"{i} got a haircut")
     sleep(1)
 
 
 def cut_hair():
-    # TODO: Simulate time and print info when barber cuts customer's hair
+    """Simulate time and print info when barber cuts a customer's hair."""
     print("Barber is cutting a customer's hair")
     sleep(4)
 
 
 def balk(i):
-    # TODO: Represents situation when waiting room is full and print info
+    """ 
+    Represents a situation when waiting room is full and prints info.
+
+    :param i: customer id
+    :return:
+    """
     print(f"Customer {i} can't enter, because the waiting room is full, so he leaves.")
     sleep(randint(10, 20))
 
+
+# Mutex implementations inspired from: https://github.com/tj314/ppds-2023-cvicenia/blob/master/seminar3/mutex.py
 def leave(i, shared):
+    """
+    Simulates the customer leaving the barbershop and freeing up the space in the waiting room.
+
+    :param shared: object of class Shared
+    :param i: customer id
+    :return:
+    """
     shared.mutex.lock()
     sleep(1 / 100)
     shared.waiting_room -= 1
     print(f"Customer {i} leaves the waiting room. The capacity is now: ", shared.waiting_room, "/", N)
     shared.mutex.unlock()
 
+
 def growing_hair(i):
-    # TODO: Represents situation when customer wait after getting haircut. So hair is growing and customer is sleeping for some time
+    """
+    Represents situation when customer wait after getting haircut.
+    So the hair is growing and customer is sleeping for some time.
+
+    :param i: customer id
+    :return:
+    """
     print(f"Customer {i}'s hair is growing\n")
     sleep(randint(10, 20))
 
 
 def customer_wait(i, shared):
+    """
+    Checks if the waiting room if full when a customer enters.
+    If it is, then the customer leaves.
+    If it isn't, then the customer enters the waiting room.
+
+    :param shared: object of class Shared
+    :param i: customer id
+    :return:
+    """
     shared.mutex.lock()
     sleep(1 / 100)
     if shared.waiting_room >= N:
@@ -75,50 +104,62 @@ def customer_wait(i, shared):
     shared.mutex.unlock()
     return True
 
-def customer(i, shared):
-    # TODO: Function represents customers behaviour. Customer come to waiting if room is full sleep.
-    # TODO: Wake up barber and waits for invitation from barber. Then gets new haircut.
-    # TODO: After it both wait to complete their work. At the end waits to hair grow again
 
+# Signalization implementation inspired from: https://github.com/tj314/ppds-2023-cvicenia/blob/master/seminar3/signalization.py
+def customer(i, shared):
+    """
+    Function represents customers behaviour. Customer come to waiting if room is full sleep.
+    Wake up barber and waits for invitation from barber. Then gets a new haircut.
+    After both wait to complete their work, the customer waits to hair grow again before coming back.
+
+    :param shared: object of class Shared
+    :param i: customer id
+    :return:
+    """
     shared.barber.wait()
     sleep(randint(0, 3))
 
     while True:
-        # TODO: Access to waiting room. Could customer enter or must wait? Be careful about counter integrity :)
+        # Access to waiting room. Can the customer enter or must they wait?
         print(f"Customer {i} comes in to the waiting room")
         if not customer_wait(i, shared):
             continue
 
-        # TODO: Rendezvous 1
+        # Signalization
         shared.customer.signal()
         shared.barber.wait()
         shared.customer_done.wait()
         get_haircut(i)
-        # TODO: Rendezvous 2
 
-        # TODO: Leave waiting room. Integrity again
+        # Leave the waiting room
         leave(i, shared)
         shared.barber_done.signal()
         growing_hair(i)
 
+
 def barber(shared):
-    # TODO: Function barber represents barber. Barber is sleeping.
-    # TODO: When customer come to get new hair wakes up barber.
-    # TODO: Barber cuts customer hair and both wait to complete their work.
-  
+    """
+    Function barber represents the barber.
+    When a customer comes to get a new haircut, the barber soon wakes up.
+    Barber cuts the customer's hair and they both wait to complete their tasks.
+
+    :param shared: object of class Shared
+    :return:
+    """
     shared.barber.signal(C)
     print("Barber is sleeping")
     sleep(randint(3, 10))
     print("Barber woke up\n")
 
     while True:
+        # Signalization
         shared.barber.signal()
         shared.customer.wait()
-        # TODO: Rendezvous 1
         cut_hair()
+        
+        # Signalization
         shared.customer_done.signal()
         shared.barber_done.wait()
-        # TODO: Rendezvous 2
 
 
 def main():
@@ -134,7 +175,6 @@ def main():
         t.join()
 
 
-# TODO: Global variables C = 5 numOfCustomers N = 3 sizeOfWaitingRoom
 C = 5
 N = 3
 

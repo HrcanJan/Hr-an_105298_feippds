@@ -19,8 +19,7 @@ class Shared(object):
     """"Object Shared for multiple threads using demonstration"""
 
     def __init__(self):
-        self.mutex1 = Mutex()
-        self.mutex2 = Mutex()
+        self.mutex = Mutex()
         self.waiting_room = 0
         self.customer = Semaphore(0)
         self.barber = Semaphore(0)
@@ -41,7 +40,7 @@ def get_haircut(i):
 
 def cut_hair():
     """Simulate time and print info when barber cuts a customer's hair."""
-    print("Barber is cutting customer's hair")
+    print("Barber is cutting a customer's hair")
     sleep(4)
 
 
@@ -65,11 +64,11 @@ def leave(i, shared):
     :param i: customer id
     :return:
     """
-    shared.mutex2.lock()
+    shared.mutex.lock()
     sleep(1 / 100)
     shared.waiting_room -= 1
     print(f"Customer {i} leaves the waiting room. The capacity is now: ", shared.waiting_room, "/", N)
-    shared.mutex2.unlock()
+    shared.mutex.unlock()
 
 
 def growing_hair(i):
@@ -94,15 +93,15 @@ def customer_wait(i, shared):
     :param i: customer id
     :return:
     """
-    shared.mutex1.lock()
+    shared.mutex.lock()
     sleep(1 / 100)
     if shared.waiting_room >= N:
-        shared.mutex1.unlock()
+        shared.mutex.unlock()
         balk(i)
         return False
     shared.waiting_room += 1
     print(f"Customer {i} enters the waiting room. The capacity is now: ", shared.waiting_room, "/", N)
-    shared.mutex1.unlock()
+    shared.mutex.unlock()
     return True
 
 

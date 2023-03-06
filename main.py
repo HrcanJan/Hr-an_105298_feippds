@@ -19,7 +19,8 @@ class Shared(object):
     """"Object Shared for multiple threads using demonstration"""
 
     def __init__(self):
-        self.mutex = Mutex()
+        self.mutex1 = Mutex()
+        self.mutex2 = Mutex()
         self.waiting_room = 0
         self.customer = Semaphore(0)
         self.barber = Semaphore(0)
@@ -40,7 +41,7 @@ def get_haircut(i):
 
 def cut_hair():
     """Simulate time and print info when barber cuts a customer's hair."""
-    print("Barber is cutting a customer's hair")
+    print("Barber is cutting customer's hair")
     sleep(4)
 
 
@@ -51,7 +52,7 @@ def balk(i):
     :param i: customer id
     :return:
     """
-    print(f"Customer {i} can't enter, because the waiting room is full, so he leaves.")
+    print(f"Customer {i} can't enter, because the waiting room is full, so they leave.")
     sleep(randint(10, 20))
 
 
@@ -64,11 +65,11 @@ def leave(i, shared):
     :param i: customer id
     :return:
     """
-    shared.mutex.lock()
+    shared.mutex2.lock()
     sleep(1 / 100)
     shared.waiting_room -= 1
     print(f"Customer {i} leaves the waiting room. The capacity is now: ", shared.waiting_room, "/", N)
-    shared.mutex.unlock()
+    shared.mutex2.unlock()
 
 
 def growing_hair(i):
@@ -80,7 +81,7 @@ def growing_hair(i):
     :return:
     """
     print(f"Customer {i}'s hair is growing\n")
-    sleep(randint(10, 20))
+    sleep(randint(5, 30))
 
 
 def customer_wait(i, shared):
@@ -93,15 +94,15 @@ def customer_wait(i, shared):
     :param i: customer id
     :return:
     """
-    shared.mutex.lock()
+    shared.mutex1.lock()
     sleep(1 / 100)
     if shared.waiting_room >= N:
-        shared.mutex.unlock()
+        shared.mutex1.unlock()
         balk(i)
         return False
     shared.waiting_room += 1
     print(f"Customer {i} enters the waiting room. The capacity is now: ", shared.waiting_room, "/", N)
-    shared.mutex.unlock()
+    shared.mutex1.unlock()
     return True
 
 
@@ -116,8 +117,9 @@ def customer(i, shared):
     :param i: customer id
     :return:
     """
-    shared.barber.wait()
-    sleep(randint(0, 3))
+    global cs
+    shared.customer.wait()
+    sleep(randint(3, 6))
 
     while True:
         # Access to waiting room. Can the customer enter or must they wait?
@@ -126,8 +128,8 @@ def customer(i, shared):
             continue
 
         # Signalization
-        shared.customer.signal()
-        shared.barber.wait()
+        shared.barber.signal()
+        shared.customer.wait()
         shared.customer_done.wait()
         get_haircut(i)
 
@@ -146,20 +148,22 @@ def barber(shared):
     :param shared: object of class Shared
     :return:
     """
-    shared.barber.signal(C)
+    shared.customer.signal(C)
     print("Barber is sleeping")
-    sleep(randint(3, 10))
+
+    # 1st signalization and waking up
+    shared.customer.signal()
+    shared.barber.wait()
     print("Barber woke up\n")
 
     while True:
-        # Signalization
-        shared.barber.signal()
-        shared.customer.wait()
         cut_hair()
         
         # Signalization
         shared.customer_done.signal()
         shared.barber_done.wait()
+        shared.customer.signal()
+        shared.barber.wait()
 
 
 def main():

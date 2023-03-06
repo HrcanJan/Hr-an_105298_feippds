@@ -1,4 +1,4 @@
-# Barbershop problem without overtaking
+# Barbershop problem with overtaking
 
 ### A fully functional EXAMPLE project written in python to showcase different sequences of using mutex and signalization
 

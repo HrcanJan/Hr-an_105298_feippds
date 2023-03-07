@@ -9,15 +9,19 @@ The example is written in Python (version 3.10) using ```fei.ppds``` module (```
 
 ### Why this is an optimal solution
 
-Let's look at all the conditions of mutual exclusion that must be fulfilled: 
+Let's look at all the conditions of mutual exclusion that must be fulfilled: [[2]](#2)
 
 1. Mutual exclusion should be ensured in the middle of different processes when accessing shared resources. There must not be two processes within their critical sections at any time: 
 * There are two critical sections: when a customer is getting a haircut and the access of ```shared.waiting_room``` and it's incrementation/decrementation. Signalizations sent by the barber ensure that only one customer can access the critical section in the customer() function at once. Mutex() ensures that only one process can access ```shared.waiting_room``` at once. The ```shared.waiting_room``` will be locked until one process is finished, and then it will unlock the critical area for other processes.
 2. Assumptions should not be made as to the respective speed of the unstable processes: 
-* A process may fail at any time. We assume that when it fails, it immediately goes to its noncritical section and halts.
+* A process may fail at any time. We assume that when it fails, it immediately goes to its noncritical section and halts. [[1]](#1)
 3. The process that is outside the critical section must not interfere with another for access to the critical section: 
 * The process can't access one critical area until the barber sends a signal. A barber can't send the signal until a customer sends a signal that they are done getting a haircut. The barber sends one signal after finishing cutting hair of one customer, ensuring that only one process will enter the critical area. The other critical area is protected by a mutex, which will lock that critical area until the process using it had finished using it.
 4. When multiple processes access its critical section, they must be allowed access in a finite time: 
 * After a customer has left the barbershop, they will send a signal to the barber, as well as decrementing the waiting room counter. The barber will then send a signal to one customer (who is currently in the waiting room), who will enter the critical area and start the same process over again. This process will loop forever and everyone will have the access to the critical area, eventually.
 
 Because all conditions are met, that proves that our code work as intended.
+
+### References
+<a id="1">[1](wikipedia (https://en.wikipedia.org/wiki/Lamport%27s_bakery_algorithm#Implementation_of_the_algorithm))
+<a id="2">[2](scaler, [2022](https://www.scaler.com/topics/mutual-exclusion-in-os/))

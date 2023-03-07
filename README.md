@@ -23,5 +23,5 @@ Let's look at all the conditions of mutual exclusion that must be fulfilled: [[2
 Because all conditions are met, that proves that our code work as intended.
 
 ### References
-<a id="1">[1](wikipedia (https://en.wikipedia.org/wiki/Lamport%27s_bakery_algorithm#Implementation_of_the_algorithm))
+<a id="1">[1](wikipedia, (https://en.wikipedia.org/wiki/Lamport%27s_bakery_algorithm#Implementation_of_the_algorithm))
 <a id="2">[2](scaler, [2022](https://www.scaler.com/topics/mutual-exclusion-in-os/))

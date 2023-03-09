@@ -47,7 +47,7 @@ def eat(i: int):
 def philosopher(i: int, shared: Shared):
     """
     Run philosopher's code.
-    Lefties/righties method: the philosopher with the lowest id is a righty.
+    Lefties/righties method: the philosopher with the lowest id is a lefty.
 
     Args:
         i -- philosopher's id

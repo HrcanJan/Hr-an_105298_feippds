@@ -9,7 +9,7 @@ __email__ = "xvavro@stuba.sk"
 __license__ = "MIT"
 
 from fei.ppds import Thread, Mutex, Semaphore, print
-from time import sleep
+from time import sleep, time
 
 NUM_PHILOSOPHERS: int = 5
 NUM_RUNS: int = 10  # number of repetitions of think-eat cycle of philosophers
@@ -29,7 +29,7 @@ def think(i: int):
         i -- philosopher's id
     """
     print(f"Philosopher {i} is thinking!")
-    sleep(0.1)
+    sleep(1.5)
 
 
 def eat(i: int):
@@ -37,8 +37,8 @@ def eat(i: int):
     Args:
         i -- philosopher's id
     """
-    print(f"Philosopher {i} is eating!")
-    sleep(0.1)
+    print(f"Philosopher {i} is eating!\n")
+    sleep(1.5)
 
 
 def philosopher(i: int, shared: Shared):
@@ -50,11 +50,20 @@ def philosopher(i: int, shared: Shared):
     for _ in range(NUM_RUNS):
         think(i)
         print(f"{i} wants to eat")
+        timeout = time() + 9
+
         # get forks
         shared.waiter.wait()
         shared.forks[i].lock()
         sleep(0.5)
-        shared.forks[(i+1) % NUM_PHILOSOPHERS].lock()
+        shared.forks[(i + 1) % NUM_PHILOSOPHERS].lock()
+
+        if time() > timeout:
+            print(f"{i} has starved to death\n")
+            shared.forks[i].unlock()
+            shared.forks[(i + 1) % NUM_PHILOSOPHERS].unlock()
+            break
+
         eat(i)
         shared.forks[i].unlock()
         shared.forks[(i + 1) % NUM_PHILOSOPHERS].unlock()
@@ -63,12 +72,14 @@ def philosopher(i: int, shared: Shared):
 
 def main():
     """Run main."""
+    timer = time()
     shared: Shared = Shared()
     philosophers: list[Thread] = [
         Thread(philosopher, i, shared) for i in range(NUM_PHILOSOPHERS)
     ]
     for p in philosophers:
         p.join()
+    print("Completed in", round(time() - timer, 3), "seconds")
 
 
 if __name__ == "__main__":

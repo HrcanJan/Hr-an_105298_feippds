@@ -7,7 +7,7 @@ __email__ = "xhrcan@stuba.sk"
 __license__ = "MIT"
 
 from fei.ppds import Thread, Mutex, print
-from time import sleep
+from time import sleep, time
 
 NUM_PHILOSOPHERS: int = 5
 NUM_RUNS: int = 10  # number of repetitions of think-eat cycle of philosophers
@@ -29,7 +29,7 @@ def think(i: int):
         i -- philosopher's id
     """
     print(f"Philosopher {i} is thinking!")
-    sleep(4)
+    sleep(1.5)
 
 
 def eat(i: int):
@@ -40,7 +40,7 @@ def eat(i: int):
         i -- philosopher's id
     """
     print(f"Philosopher {i} is eating!\n")
-    sleep(4)
+    sleep(1.5)
 
 
 # The idea inspired of the implementation from: https://www.geeksforgeeks.org/dining-philosophers-problem/
@@ -50,7 +50,7 @@ def philosopher(i: int, shared: Shared):
     Lefties/righties method: the philosopher with the lowest id is a lefty.
 
     Args:
-        i -- philosopher's id
+        i      -- philosopher's id
         shared -- shared data
     """
     left_fork = i
@@ -62,10 +62,19 @@ def philosopher(i: int, shared: Shared):
     for _ in range(NUM_RUNS):
         think(i)
         print(f"{i} wants to eat")
+        timeout = time() + 9
+
         # get forks
         shared.forks[left_fork].lock()
         sleep(0.5)
         shared.forks[right_fork].lock()
+
+        if time() > timeout:
+            print(f"{i} has starved to death\n")
+            shared.forks[left_fork].unlock()
+            shared.forks[right_fork].unlock()
+            break
+
         eat(i)
         shared.forks[left_fork].unlock()
         shared.forks[right_fork].unlock()
@@ -73,12 +82,14 @@ def philosopher(i: int, shared: Shared):
 
 def main():
     """Run main."""
+    timer = time()
     shared: Shared = Shared()
     philosophers: list[Thread] = [
         Thread(philosopher, i, shared) for i in range(NUM_PHILOSOPHERS)
     ]
     for p in philosophers:
         p.join()
+    print("Completed in", round(time() - timer, 3), "seconds")
 
 
 if __name__ == "__main__":

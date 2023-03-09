@@ -6,11 +6,12 @@ __author__ = "Ján Hrćan"
 __email__ = "xhrcan@stuba.sk"
 __license__ = "MIT"
 
-from fei.ppds import Thread, Mutex, Semaphore, print
+from fei.ppds import Thread, Mutex, print
 from time import sleep
 
 NUM_PHILOSOPHERS: int = 5
 NUM_RUNS: int = 10  # number of repetitions of think-eat cycle of philosophers
+
 
 # The backbone of the entire application inspired from: https://github.com/tj314/ppds-2023-cvicenia/blob/master/seminar4/04_philosophers.py
 class Shared:
@@ -21,38 +22,53 @@ class Shared:
 
 
 def think(i: int):
-    """Simulate thinking.
+    """
+    Simulate thinking.
+    
     Args:
         i -- philosopher's id
     """
     print(f"Philosopher {i} is thinking!")
-    sleep(0.1)
+    sleep(4)
 
 
 def eat(i: int):
-    """Simulate eating.
-    Args:
+    """
+    Simulate eating.
+
+    Args: 
         i -- philosopher's id
     """
-    print(f"Philosopher {i} is eating!")
-    sleep(0.1)
+    print(f"Philosopher {i} is eating!\n")
+    sleep(4)
 
 
+# The idea inspired of the implementation from: https://www.geeksforgeeks.org/dining-philosophers-problem/
 def philosopher(i: int, shared: Shared):
-    """Run philosopher's code.
+    """
+    Run philosopher's code.
+    Lefties/righties method: the philosopher with the lowest id is a righty.
+
     Args:
         i -- philosopher's id
         shared -- shared data
     """
+    left_fork = i
+    right_fork = (i + 1) % NUM_PHILOSOPHERS
+    if(i == 0):
+        right_fork = i
+        left_fork = (i + 1) % NUM_PHILOSOPHERS
+
     for _ in range(NUM_RUNS):
         think(i)
+        print(f"{i} wants to eat")
         # get forks
-        shared.forks[i].lock()
+        shared.forks[left_fork].lock()
         sleep(0.5)
-        shared.forks[(i+1) % NUM_PHILOSOPHERS].lock()
+        shared.forks[right_fork].lock()
         eat(i)
-        shared.forks[i].unlock()
-        shared.forks[(i + 1) % NUM_PHILOSOPHERS].unlock()
+        shared.forks[left_fork].unlock()
+        shared.forks[right_fork].unlock()
 
 
 def main():

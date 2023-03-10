@@ -1,0 +1,20 @@
+# The dinning philosophers problem
+
+### A fully functional project written in python to showcase a solution to the dinning philosophers problem using the lefties/righties method
+
+This repository shows an implementation of mutex and singalization in a multiple thread problem. The dinning philosophers problem is as follows: There are N philosophers sitting at a round table. There are also N forks on the table. Each philosopher has a fork on their left and on their right that they share with their neighbouring philosophers. The philosophers start out thinking, but after some time, they decide to eat. To eat, they need to grab their left and right fork, but if their neighbouring philosopher has already picked up one of their forks that they share, the first philosopher will wait until they can finally pick up the fork. This repeats NUM_RUNS amount of times.
+
+There are several obstacles within this problem... We implemented a starvation system, where philosophers will starve if they don't get to eat after a certain amount of time, so our solution must be optimal. There is also a problem, where if all philosophers pick up their right fork first and then the left, there may occur an instance where all N philosophers have picked up their right fork, and no one can eat, because no one can pick up their left fork since everyone is holding 1 fork up. This would also lead to the philosophers starving to death.
+
+The example is written in Python (version 3.10) using ```fei.ppds``` module (```pip install --user fei.ppds```). Run the ```main.py``` in terminal to automatically test the program. ```waiter.py``` is for testing and comparing purposes, which presents a different solution to the problem, which we will discuss later.
+
+### The lefties/righties solution
+
+The implemented solution to the problem is called lefties/righties. All of the philosophers will be right handed (and thus they will pick up their right fork first) except for one, which will be a lefty (and pick up his left fork first). This will disallow the occurence of the situation where eveyone has picked up a fork and no one can eat. In our example, the 1st philosopher will always be a lefty and everyone else is a righty. This will mean, that when we start our program, the last philosopher will have their left fork free which is the first philosopher's right fork. Because in our implementation we use ```sleep(0.5)``` in between picking up the right and left forks, it is guaranteed that either the first or last philosopher will eat first. This will permanently ensure that we are safe from the deadlock. The other starvation problem is implemented with a small counter. If a philosopher hasn't eaten in predetermined number of seconds, they will starve to death.
+
+### Comparing lefties/righties solution with the waiter solution
+
+In short description: the waiter solution is a mutex, who will allow only ```(number of philosophers - 1)``` to compete for forks at the same time. It also presents a good solution to our dinning philosopher problem, but is it better or worse? (You can view the implementation in ```waiter.py```)
+When ran in console, given that we set a reasonable time to avoid starvation, the lefties/righties solution will complete in almost half the time comparing to the waiter solution (in my implementation: 45s vs 77s). On the other hand, the lefties/righties solution does not guarantee that each philosopher will get to eat in a reasonable time period. In this solution, if all philosophers, who happen to be righties, pick up their right fork at the same time, they will all be waiting for their left fork for indefinite amount of time. This could result in some philosophers starving to death.
+
+In conclusion, while both solutions aim to prevent deadlocks in the dining philosophers problem, the waiter solution is better at preventing the starvation as it ensures that each philosopher is given an opportunity to eat within a reasonable amount of time.

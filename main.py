@@ -62,14 +62,14 @@ def savage(i, shared):
         shared.mutex.unlock()
         shared.barrier2.wait()
 
-        shared.mutex.lock()
-        print(f"Savage {i} is taking their portion. Remaining portions: {shared.servings} / {NUM_POT}")
+        shared.mutex2.lock()
+        print(f"Savage {i} is first in queue to take their portion. Remaining portions: {shared.servings} / {NUM_POT}")
         if(shared.servings == 0):
             print(f"Savage {i} is waking up the cook")
             shared.empty_pot.signal()
             shared.full_pot.wait()
         getServingFromPot(i, shared)
-        shared.mutex.unlock()
+        shared.mutex2.unlock()
 
         print(f"Savage {i} is feasting")
         sleep(4)
@@ -81,8 +81,10 @@ def putServingInPot(shared):
 
     shared:   shared class between threads
     """
+    shared.mutex.lock()
     print(f"The cook filling the pot with food")
     shared.servings += NUM_POT
+    shared.mutex.unlock()
 
 
 def cook(shared):

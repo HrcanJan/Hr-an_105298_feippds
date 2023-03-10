@@ -1,4 +1,5 @@
 """This module implements dinning philosophers problem.
+
  Lefties/righties solution is implemented.
  """
 
@@ -9,6 +10,7 @@ __license__ = "MIT"
 from fei.ppds import Thread, Mutex, print
 from time import sleep, time
 
+STARVATION: int = 9 # number of seconds philosophers can stay hungry for
 NUM_PHILOSOPHERS: int = 5
 NUM_RUNS: int = 10  # number of repetitions of think-eat cycle of philosophers
 
@@ -62,7 +64,7 @@ def philosopher(i: int, shared: Shared):
     for _ in range(NUM_RUNS):
         think(i)
         print(f"{i} wants to eat")
-        timeout = time() + 9
+        timeout = time() + STARVATION
 
         # get forks
         shared.forks[left_fork].lock()

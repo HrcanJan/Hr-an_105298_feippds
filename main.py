@@ -16,15 +16,14 @@ class Shared:
     def __init__(self):
         """Initialize an instance of Shared."""
         self.mutex = Mutex()
+        self.mutex2 = Mutex()
         self.servings = 0
-        self.full_pot = Mutex()
-        self.empty_pot = Mutex()
+        self.full_pot = Semaphore(0)
+        self.empty_pot = Semaphore(0)
         
-        self.barier1 = Semaphore(0)
-        self.barier2 = Semaphore(0)
-        self.barier_count = 0
-
-        # self.savages = [Mutex() for _ in range(NUM_SAVAGES)]
+        self.barrier1 = Semaphore(0)
+        self.barrier2 = Semaphore(0)
+        self.barrier_count = 0
 
 
 def getServingFromPot(i, shared):
@@ -35,7 +34,7 @@ def getServingFromPot(i, shared):
     i:        savage_id
     """
     print(f"Savage {i} is getting a serving of food")
-    shared.serving -= 1
+    shared.servings -= 1
     sleep(2)
 
 
@@ -47,16 +46,26 @@ def savage(i, shared):
     i:        savage_id
     """
     while True:
+        shared.mutex.lock()
         shared.barrier_count += 1
-        print(f"Savage {i} wants to eat. There's {shared.barrier1_count} of them waiting.")
+        print(f"Savage {i} wants to eat. There's {shared.barrier_count} of them waiting.")
+        if(shared.barrier_count == NUM_SAVAGES):
+            shared.barrier1.signal(NUM_SAVAGES)
+            print("All the savages have arrived to eat. The feast shall comence")
+        shared.mutex.unlock()
         shared.barrier1.wait()
-        print("All the savages have arrived to eat. The feast shall comence")
+
+        shared.mutex.lock()
+        shared.barrier_count -= 1
+        if shared.barrier_count == 0:
+            shared.barrier2.signal(NUM_SAVAGES)
+        shared.mutex.unlock()
         shared.barrier2.wait()
 
         shared.mutex.lock()
-        print(f"Savage {i} took their portion. Remaining portions: {shared.serving} / {NUM_POT}")
-        if(shared.serving == 0):
-            print("Savage {i} is waking up the cook")
+        print(f"Savage {i} is taking their portion. Remaining portions: {shared.servings} / {NUM_POT}")
+        if(shared.servings == 0):
+            print(f"Savage {i} is waking up the cook")
             shared.empty_pot.signal()
             shared.full_pot.wait()
         getServingFromPot(i, shared)
@@ -73,7 +82,8 @@ def putServingInPot(shared):
     shared:   shared class between threads
     """
     print(f"The cook filling the pot with food")
-    shared.serving += NUM_POT
+    shared.servings += NUM_POT
+
 
 def cook(shared):
     """
@@ -81,10 +91,11 @@ def cook(shared):
 
     shared:   shared class between threads
     """
-    shared.empty_pot.wait()
-    putServingInPot(shared)
-    sleep(5)
-    shared.fill_pot.signal()
+    while True:
+        shared.empty_pot.wait()
+        putServingInPot(shared)
+        sleep(5)
+        shared.full_pot.signal()
 
 
 def main():
@@ -94,9 +105,10 @@ def main():
     savages = []
 
     for i in range(NUM_SAVAGES):
-        savages.append(Thread(savages, i, shared))
+        savages.append(Thread(savage, i, shared))
+    the_cook = Thread(cook, shared)
 
-    for t in savages:
+    for t in savages + [the_cook]:
         t.join()
 
 

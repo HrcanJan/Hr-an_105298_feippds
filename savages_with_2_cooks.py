@@ -9,6 +9,7 @@ from time import sleep, time
 
 NUM_SAVAGES: int = 10
 NUM_POT: int = 5        # Number of portions in the pot
+NUM_COOKS: int = 2
 
 
 class Shared:
@@ -87,10 +88,11 @@ def putServingInPot(shared):
     shared.mutex.unlock()
 
 
-def cook(shared):
+def cook(i, shared):
     """
     Function represents cook behaviour.
 
+    i:        id of the cook
     shared:   shared class between threads
     """
     while True:
@@ -105,12 +107,16 @@ def main():
     global NUM_SAVAGES, NUM_POT
     shared = Shared()
     savages = []
+    cooks = []
 
     for i in range(NUM_SAVAGES):
         savages.append(Thread(savage, i, shared))
-    the_cook = Thread(cook, shared)
+    for i in range(NUM_COOKS):
+        cooks.append(Thread(cook, i, shared))
 
-    for t in savages + [the_cook]:
+    for t in savages:
+        t.join()
+    for t in cooks:
         t.join()
 
 

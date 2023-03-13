@@ -85,7 +85,7 @@ def putServingInPot(i, shared):
     i:        id of the cook
     shared:   shared class between threads
     """
-    print(f"The cook {i} filling the pot with food: {shared.servings + 1} / 5")
+    print(f"The cook {i} filling the pot with food: {shared.servings + 1} / {NUM_POT}")
     shared.servings += 1
 
 
@@ -99,7 +99,7 @@ def cook(i, shared):
     while True:
         shared.empty_pot.wait()
         shared.mutex.lock()
-        
+
         if(shared.servings != NUM_POT):
             putServingInPot(i, shared)
             sleep(1)

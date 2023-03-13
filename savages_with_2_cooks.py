@@ -4,7 +4,7 @@ __author__ = "Ján Hrćan"
 __email__ = "xhrcan@stuba.sk"
 __license__ = "MIT"
 
-from fei.ppds import Thread, Mutex, print, Semaphore
+from fei.ppds import Thread, Mutex, print, Semaphore, Event
 from time import sleep, time
 
 NUM_SAVAGES: int = 10
@@ -18,9 +18,11 @@ class Shared:
         """Initialize an instance of Shared."""
         self.mutex = Mutex()
         self.mutex2 = Mutex()
-        self.servings = 0
+        self.cook = Mutex()
         self.full_pot = Semaphore(0)
         self.empty_pot = Semaphore(0)
+        self.cooks = NUM_COOKS
+        self.servings = 0
         
         self.barrier1 = Semaphore(0)
         self.barrier2 = Semaphore(0)
@@ -66,8 +68,8 @@ def savage(i, shared):
         shared.mutex2.lock()
         print(f"Savage {i} is first in queue to take their portion. Remaining portions: {shared.servings} / {NUM_POT}")
         if(shared.servings == 0):
-            print(f"Savage {i} is waking up the cook")
-            shared.empty_pot.signal()
+            print(f"Savage {i} is waking up the cooks")
+            shared.empty_pot.signal(NUM_COOKS)
             shared.full_pot.wait()
         getServingFromPot(i, shared)
         shared.mutex2.unlock()
@@ -76,16 +78,15 @@ def savage(i, shared):
         sleep(4)
 
 
-def putServingInPot(shared):
+def putServingInPot(i, shared):
     """
     The cook is filling the pot with food
 
+    i:        id of the cook
     shared:   shared class between threads
     """
-    shared.mutex.lock()
-    print(f"The cook filling the pot with food")
-    shared.servings += NUM_POT
-    shared.mutex.unlock()
+    print(f"The cook {i} filling the pot with food: {shared.servings + 1} / 5")
+    shared.servings += 1
 
 
 def cook(i, shared):
@@ -97,9 +98,23 @@ def cook(i, shared):
     """
     while True:
         shared.empty_pot.wait()
-        putServingInPot(shared)
-        sleep(5)
-        shared.full_pot.signal()
+        shared.mutex.lock()
+        
+        if(shared.servings != NUM_POT):
+            putServingInPot(i, shared)
+            sleep(1)
+        shared.cooks -= 1
+
+        if(shared.cooks == 0):
+            shared.cooks = NUM_COOKS
+            if(shared.servings == NUM_POT):
+                shared.mutex.unlock()
+                shared.full_pot.signal()
+                continue
+            else:
+                shared.empty_pot.signal(NUM_COOKS)
+
+        shared.mutex.unlock()
 
 
 def main():

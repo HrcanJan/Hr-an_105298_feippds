@@ -30,7 +30,7 @@ shared.mutex.unlock()
 shared.barrier2.wait()
 ```
 
-Next, one savage after the other comes in to get a portion of the serving. If the pot is empty, they will wake up the cook and the cook will start to fill the pot. There are two **mutexes** here, one that locks the critical area when one savage enters it, to prevent others from entering until the savage has finished filling up his plate:
+Next, one savage after the other comes in to get a portion of the serving. If the pot is empty, they will wake up the cook and the cook will start to fill the pot. There are two **mutexes** here, one that locks the critical area when one savage enters it, to prevent others from entering until the savage has finished filling up his plate. It takes 2 seconds (```sleep(2)```) for a savage to fill up their plate. A savage will eat their food for 4 seconds (```sleep(4)```) and then get back to waiting behind the aformentioned barrier:
 ```python
 shared.mutex2.lock()
 print(f"Savage {i} is first in queue to take their portion. Remaining portions: {shared.servings} / {NUM_POT}")
@@ -50,7 +50,7 @@ shared.servings += 1
 ...
 shared.mutex.unlock()
 ```
-And lastly, we use **signalization** and **event semaphore** to allow the savage to signal the cooks to cook the food and fill up the pot and **mutex** to lock the critical area. The savage will meanwhile wait. The cooks will take turns to fill up the pot until the pot is full. The last cook (when shared.cook == 0) will always be the one to make the decision to signal all the cooks to cook more food if the pot isn't full, or if the pot is full, they will send a signal to the savage that they can eat. All of the cooks will go to "sleep" in the meanwhile: 
+And lastly, we use **signalization** and **event semaphore** to allow the savage to signal the cooks to cook the food and fill up the pot and **mutex** to lock the critical area. The savage will meanwhile wait. The cooks will take turns to fill up the pot until the pot is full. Each cook will take 1 second (```sleep(1)```) to cook the food and place their portion into the pot. The last cook (when shared.cook == 0) will always be the one to make the decision to signal all the cooks to cook more food if the pot isn't full, or if the pot is full, they will send a signal to the savage that they can eat. All of the cooks will go to "sleep" in the meanwhile: 
 ```python
 shared.empty_pot.signal(NUM_COOKS)
 shared.full_pot.wait()

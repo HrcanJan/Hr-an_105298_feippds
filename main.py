@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import os
 import cv2
 import numpy as np
+import time
 
 
 def transform_to_grayscale_cpu(pixels):
@@ -21,14 +22,10 @@ def transform_to_grayscale_cpu(pixels):
     return img_array
 
 
-def transform_to_grayscale(pixels):
-    return pixels
-
-
-if __name__ == '__main__':
-    directory = "./img"
-    for filename in os.listdir(directory):
-        filepath = (os.path.join(directory, filename))
+def cpu(path):
+    start_time = time.time()
+    for filename in os.listdir(path):
+        (os.path.join(directory, filename))
         img_name = filename.split(".")
         name = img_name[0]
 
@@ -36,6 +33,31 @@ if __name__ == '__main__':
         new_pixel = transform_to_grayscale(img)
         cv2.imwrite(f'./gray_cpu/{name}.{img_name[1]}', new_pixel)
 
+    end_time = time.time()
+    timer = round(end_time - start_time, 2)
+    print(timer)
+
+
+def transform_to_grayscale(pixels):
+    return pixels
+
+
+def gpu(path):
+    start_time = time.time()
+    for filename in os.listdir(path):
+        (os.path.join(path, filename))
+        img_name = filename.split(".")
+        name = img_name[0]
+
         pixel = plt.imread(f'./img/{name}.{img_name[1]}')
         new_pixel = transform_to_grayscale(pixel)
         plt.imsave(f'./gray/{name}.{img_name[1]}', new_pixel, format="jpg")
+    end_time = time.time()
+    timer = round(end_time - start_time, 2)
+    print(timer)
+
+
+if __name__ == '__main__':
+    directory = "./img"
+    cpu(directory)
+    gpu(directory)

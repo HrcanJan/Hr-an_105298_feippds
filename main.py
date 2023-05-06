@@ -51,8 +51,8 @@ def cpu(path, save_path):
         sum_time += timer
     end_time = time.time()
     timer = round(end_time - start_time, 2)
-    print("CPU", timer)
-    print("Average time per photo: ", round(sum_time / count), 2)
+    print("CPU", timer, " s")
+    print("Average time per photo: ", round((sum_time / count), 2), " s")
 
 
 # https://en.wikipedia.org/wiki/Grayscale#Converting_color_to_grayscale
@@ -107,8 +107,8 @@ def gpu(path, save_path):
         sum_time += timer
     end_time = time.time()
     timer = round(end_time - start_time, 2)
-    print("GPU", timer)
-    print("Average time per photo: ", round(sum_time / count), 2)
+    print("GPU", timer, " s")
+    print("Average time per photo: ", round((sum_time / count), 2), " s")
 
 
 if __name__ == '__main__':

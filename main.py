@@ -34,7 +34,10 @@ def cpu(path, save_path):
         save_path:  path to where the images should be saved
     """
     start_time = time.time()
+    count = 0
+    sum_time = 0
     for filename in os.listdir(path):
+        start_avg_time = time.time()
         img_name = filename.split(".")
         name = img_name[0]
 
@@ -42,9 +45,14 @@ def cpu(path, save_path):
         new_pixel = transform_to_grayscale_cpu(img)
         cv2.imwrite(f'{save_path}/{name}.{img_name[1]}', new_pixel)
 
+        end_time = time.time()
+        timer = round(end_time - start_avg_time, 2)
+        count += 1
+        sum_time += timer
     end_time = time.time()
     timer = round(end_time - start_time, 2)
     print("CPU", timer)
+    print("Average time per photo: ", round(sum_time / count), 2)
 
 
 # https://en.wikipedia.org/wiki/Grayscale#Converting_color_to_grayscale
@@ -75,8 +83,11 @@ def gpu(path, save_path):
         path:       path to images folder
         save_path:  path to where the images should be saved
     """
+    count = 0
+    sum_time = 0
     start_time = time.time()
     for filename in os.listdir(path):
+        start_avg_time = time.time()
         img_name = filename.split(".")
         name = img_name[0]
         img = cv2.imread(f'{path}/{name}.{img_name[1]}')
@@ -90,9 +101,14 @@ def gpu(path, save_path):
         transform_to_grayscale[bpg, tpb](img, new_pixel)
 
         cv2.imwrite(f'./{save_path}/{name}.{img_name[1]}', new_pixel)
+        end_time = time.time()
+        timer = round(end_time - start_avg_time, 2)
+        count += 1
+        sum_time += timer
     end_time = time.time()
     timer = round(end_time - start_time, 2)
     print("GPU", timer)
+    print("Average time per photo: ", round(sum_time / count), 2)
 
 
 if __name__ == '__main__':

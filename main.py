@@ -38,9 +38,9 @@ def cpu(path, save_path):
         img_name = filename.split(".")
         name = img_name[0]
 
-        img = cv2.imread(f'./img/{name}.{img_name[1]}')
+        img = cv2.imread(f'./{path}/{name}.{img_name[1]}')
         new_pixel = transform_to_grayscale_cpu(img)
-        cv2.imwrite(f'./{save_path}/{name}.{img_name[1]}', new_pixel)
+        cv2.imwrite(f'{save_path}/{name}.{img_name[1]}', new_pixel)
 
     end_time = time.time()
     timer = round(end_time - start_time, 2)
@@ -79,7 +79,7 @@ def gpu(path, save_path):
     for filename in os.listdir(path):
         img_name = filename.split(".")
         name = img_name[0]
-        img = cv2.imread(f'./img/{name}.{img_name[1]}')
+        img = cv2.imread(f'{path}/{name}.{img_name[1]}')
         height = img.shape[0]
         width = img.shape[1]
 
@@ -97,6 +97,11 @@ def gpu(path, save_path):
 
 if __name__ == '__main__':
     """Main"""
+    single_directory = "./single_img"
     directory = "./img"
-    cpu(directory, 'gray_cpu')
-    gpu(directory, 'gray')
+    output_cpu = 'gray_cpu'
+    output_gpu = 'gray'
+    cpu(single_directory, output_cpu)
+    gpu(single_directory, output_gpu)
+    cpu(directory, output_cpu)
+    gpu(directory, output_gpu)

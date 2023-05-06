@@ -11,14 +11,14 @@ We then loaded images to test the functionality of our code. First we load a lon
 After we are done converting them to grayscale, we save them somewhere on our computer.
 Here are some of the results:
 
-[Normal image](./single_img/we_miss_him.png)
-[Grayscale counterpart](./gray/we_miss_him.png)
+![Normal image](./single_img/we_miss_him.png)
+![Grayscale counterpart](./gray/we_miss_him.png)
 
-[Normal image](./img/santaSogger.png)
-[Grayscale counterpart](./gray/santaSogger.png)
+![Normal image](./img/santaSogger.png)
+![Grayscale counterpart](./gray/santaSogger.png)
 
-[Normal image](./img/good3.PNG)
-[Grayscale counterpart](./gray/good3.PNG)
+![Normal image](./img/good3.PNG)
+![Grayscale counterpart](./gray/good3.PNG)
 
 Both algorithms complete their tasks successfully.
 Finally, we measured the time of the conversion (both average and total time and for CPU and GPU and for the single image and many images):

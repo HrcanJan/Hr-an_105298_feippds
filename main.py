@@ -15,6 +15,7 @@ import time
 from math import ceil
 
 
+# https://en.wikipedia.org/wiki/Grayscale#Converting_color_to_grayscale
 def transform_to_grayscale_cpu(img):
     """This function transforms an image to grayscale using CPU by using two for loops.
 

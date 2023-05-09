@@ -15,14 +15,21 @@ import time
 from math import ceil
 
 
-def transform_to_grayscale_cpu(pixels):
-    """This function transforms an image to grayscale using opencv's function.
+def transform_to_grayscale_cpu(img):
+    """This function transforms an image to grayscale using CPU by using two for loops.
 
         parameters:
-        pixels:     an image array
+        img:     an image array
     """
-    gray_img = cv2.cvtColor(pixels, cv2.COLOR_BGR2GRAY)
-    return np.array(gray_img)
+    gray = np.zeros((img.shape[0], img.shape[1]))
+    for row in range(img.shape[0]):
+        for col in range(img.shape[1]):
+            r = img[row, col, 0]
+            g = img[row, col, 1]
+            b = img[row, col, 2]
+            img_gray = 0.299 * r + 0.587 * g + 0.114 * b
+            gray[row][col] = img_gray
+    return np.array(gray)
 
 
 def cpu(path, save_path):
